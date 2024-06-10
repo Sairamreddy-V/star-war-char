@@ -1,14 +1,15 @@
 const express = require('express');
-const app = express();
-app.use(express.json());
 const cors = require('cors');
-app.use(cors());
-
 const { MongoClient } = require('mongodb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const uri = "mongodb://localhost:27017"; 
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// Environment variable for the MongoDB URI
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 let db;
@@ -17,8 +18,9 @@ const initializeDbAndServer = async () => {
   try {
     await client.connect();
     db = client.db('myDatabase'); 
-    app.listen(5000, () => {
-      console.log(`Server Running....`);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server Running on port ${PORT}....`);
     });
   } catch (error) {
     console.log(`db.error: ${error.message}`);
@@ -26,6 +28,7 @@ const initializeDbAndServer = async () => {
 };
 
 initializeDbAndServer();
+
 
 // Login API
 app.post('/api/login', async (request, response) => {
